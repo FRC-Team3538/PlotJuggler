@@ -234,6 +234,8 @@ endif()
 add_subdirectory( src )
 
 add_subdirectory( plugins/DataLoadCSV )
+add_subdirectory( plugins/DataLoadRobotLog )
+add_subdirectory( plugins/MessageParserRobotLog )
 add_subdirectory( plugins/DataLoadULog )
 add_subdirectory( plugins/DataStreamSample )
 add_subdirectory( plugins/DataStreamWebsocket )
