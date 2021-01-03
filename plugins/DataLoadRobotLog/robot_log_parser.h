@@ -1,7 +1,6 @@
 #pragma once
 
 #include "proto/StatusFrame_generated.h"
-#include <endian.h>
 #include <stdio.h>
 #include "PlotJuggler/dataloader_base.h"
 

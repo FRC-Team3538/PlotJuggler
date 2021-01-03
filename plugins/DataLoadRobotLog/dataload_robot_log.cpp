@@ -5,7 +5,6 @@
 #include <QDebug>
 #include <QSettings>
 #include <QProgressDialog>
-#include "selectlistdialog.h"
 #include "proto/StatusFrame_generated.h"
 #include <stdio.h>
 #include "robot_log_parser.h"
@@ -48,7 +47,7 @@ bool DataLoadRobotLog::readDataFromFile(FileLoadInfo* info, PlotDataMapRef& plot
     quint32 len;
 
     inB >> len;
-    len = htobe32(len);
+    len = _byteswap_ulong(len);
     char frame_bytes[len];
 
     inB.readRawData(frame_bytes, len);
