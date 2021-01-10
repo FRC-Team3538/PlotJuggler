@@ -26,11 +26,27 @@ private:
 
   std::string get_id(const rj::PCMStatusFrame* pcm);
 
+  std::string get_id(const rj::REVMotorStatusFrame* pcm);
+
+  std::string get_id(const rj::REVColorSensorStatusFrame* pcm);
+
+  std::string get_id(const rj::NavXStatusFrame* pcm);
+
+  std::string get_id(const rj::ADIS16470StatusFrame* pcm);
+
   int plot_frame(double time, const rj::CTREMotorStatusFrame* motor);
 
   int plot_frame(double time, const rj::PDPStatusFrame* pdp);
 
   int plot_frame(double time, const rj::PCMStatusFrame* pcm);
+
+  int plot_frame(double time, const rj::REVMotorStatusFrame* pcm);
+
+  int plot_frame(double time, const rj::REVColorSensorStatusFrame* pcm);
+
+  int plot_frame(double time, const rj::NavXStatusFrame* pcm);
+
+  int plot_frame(double time, const rj::ADIS16470StatusFrame* pcm);
 
 };
 
@@ -46,7 +62,7 @@ public:
     _checkbox_use_timestamp = new QCheckBox("use field [monotonic_time]");
   }
 
-  virtual QWidget* optionsWidget()
+  virtual QWidget* optionsWidget() override
   {
     return _checkbox_use_timestamp;
   }
