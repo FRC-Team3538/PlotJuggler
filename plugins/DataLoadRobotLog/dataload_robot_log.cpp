@@ -53,6 +53,11 @@ bool DataLoadRobotLog::readDataFromFile(FileLoadInfo* info, PlotDataMapRef& plot
     inB.readRawData(frame_bytes, len);
     auto status_frame = rj::GetStatusFrameHolder(frame_bytes);
 
+    auto verifier = flatbuffers::Verifier((uint8_t *)frame_bytes, len);
+    if (!rj::VerifyStatusFrameHolderBuffer(verifier)) {
+      qInfo() << "WARNING: BAD STATUS FRAME DETECTED. SKIPPING";
+    }
+
     if (parser.plot_frame(status_frame) != 0) {
       QString message = "Received a status frame with an unrecognized type\n"
           "Maybe you need to upgrade this plugin?";

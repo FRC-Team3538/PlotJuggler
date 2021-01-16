@@ -37,6 +37,21 @@ std::string Parser::get_id(const rj::ADIS16470StatusFrame* imu)
   return "Sensor/ADIS16470";
 }
 
+std::string Parser::get_id(const rj::WPIDigitalInput* input)
+{
+  return "Sensor/DIO::" + std::to_string(input->channel());
+}
+
+std::string Parser::get_id(const rj::WPIEncoder* encoder)
+{
+  return "Sensor/Encoder::" + std::to_string(encoder->module_());
+}
+
+std::string Parser::get_id(const rj::WPIDutyCycleEncoder* encoder)
+{
+  return "Sensor/DutyCycleEncoder::" + std::to_string(encoder->sourceChannel()) + "::" + std::to_string(encoder->index());
+}
+
 int Parser::plot_frame(double time, const rj::CTREMotorStatusFrame* motor)
 {
   // CTRE Motors - SRX AND SPX and eventually falcons
@@ -1177,6 +1192,129 @@ int Parser::plot_frame(double time, const rj::ADIS16470StatusFrame* imu)
   return 0;
 }
 
+int Parser::plot_frame(double time, const rj::WPIDigitalInput* input)
+{
+  // WPI Digital Input
+  auto id = get_id(input);
+  double data;
+  PJ::PlotData::Point point;
+  std::unordered_map<std::string, PJ::PlotData>::iterator series;
+
+  data = input->value();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/value");
+  series->second.pushBack(point);
+
+  data = input->isAnalogTrigger();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/isAnalogTrigger");
+  series->second.pushBack(point);
+
+  return 0;
+}
+
+int Parser::plot_frame(double time, const rj::WPIEncoder* encoder)
+{
+  // WPI Encoder
+  auto id = get_id(encoder);
+  double data;
+  PJ::PlotData::Point point;
+  std::unordered_map<std::string, PJ::PlotData>::iterator series;
+
+  data = encoder->value();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/value");
+  series->second.pushBack(point);
+
+  data = encoder->period();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/period");
+  series->second.pushBack(point);
+
+  data = encoder->stopped();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/stopped");
+  series->second.pushBack(point);
+
+  data = encoder->direction();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/direction");
+  series->second.pushBack(point);
+
+  data = encoder->raw();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/raw");
+  series->second.pushBack(point);
+
+  data = encoder->encodingScale();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/encodingScale");
+  series->second.pushBack(point);
+
+  data = encoder->distance();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/distance");
+  series->second.pushBack(point);
+
+  data = encoder->rate();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/rate");
+  series->second.pushBack(point);
+
+  data = encoder->distancePerPulse();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/distancePerPulse");
+  series->second.pushBack(point);
+
+  data = encoder->samplesToAverage();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/samplesToAverage");
+  series->second.pushBack(point);
+
+  data = encoder->pidGet();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/pidGet");
+  series->second.pushBack(point);
+
+  return 0;
+}
+
+int Parser::plot_frame(double time, const rj::WPIDutyCycleEncoder* encoder)
+{
+  // WPI Duty Cycle Encoder
+  auto id = get_id(encoder);
+  double data;
+  PJ::PlotData::Point point;
+  std::unordered_map<std::string, PJ::PlotData>::iterator series;
+
+  data = encoder->frequency();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/frequency");
+  series->second.pushBack(point);
+
+  data = encoder->connected();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/connected");
+  series->second.pushBack(point);
+
+  data = encoder->value();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/value");
+  series->second.pushBack(point);
+
+  data = encoder->distancePerRotation();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/distancePerRotation");
+  series->second.pushBack(point);
+
+  data = encoder->distance();
+  point = PJ::PlotData::Point(time, data);
+  series = plot_data.addNumeric(id + "/distance");
+  series->second.pushBack(point);
+
+  return 0;
+}
+
 int Parser::plot_frame(const rj::StatusFrameHolder* status_frame)
 {
   auto statusFrame_type = status_frame->statusFrame_type();
@@ -1220,6 +1358,21 @@ int Parser::plot_frame(const rj::StatusFrameHolder* status_frame)
   {
     auto imu = status_frame->statusFrame_as<rj::ADIS16470StatusFrame>();
     return plot_frame(time, imu);
+  }
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDigitalInput)
+  {
+    auto input = status_frame->statusFrame_as<rj::WPIDigitalInput>();
+    return plot_frame(time, input);
+  }
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIEncoder)
+  {
+    auto encoder = status_frame->statusFrame_as<rj::WPIEncoder>();
+    return plot_frame(time, encoder);
+  }
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder)
+  {
+    auto encoder = status_frame->statusFrame_as<rj::WPIDutyCycleEncoder>();
+    return plot_frame(time, encoder);
   }
   else
   {
