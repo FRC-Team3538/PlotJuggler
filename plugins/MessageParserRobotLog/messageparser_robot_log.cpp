@@ -39,19 +39,24 @@ std::string RobotLogParser::get_id(const rj::ADIS16470StatusFrame* imu)
   return "Sensor/ADIS16470";
 }
 
-std::string RobotLogParser::get_id(const rj::WPIDigitalInput* input)
+std::string RobotLogParser::get_id(const rj::WPIDigitalInputStatusFrame* input)
 {
   return "Sensor/DIO::" + std::to_string(input->channel());
 }
 
-std::string RobotLogParser::get_id(const rj::WPIEncoder* encoder)
+std::string RobotLogParser::get_id(const rj::WPIEncoderStatusFrame* encoder)
 {
   return "Sensor/Encoder::" + std::to_string(encoder->module_());
 }
 
-std::string RobotLogParser::get_id(const rj::WPIDutyCycleEncoder* encoder)
+std::string RobotLogParser::get_id(const rj::WPIDutyCycleEncoderStatusFrame* encoder)
 {
   return "Sensor/DutyCycleEncoder::" + std::to_string(encoder->sourceChannel()) + "::" + std::to_string(encoder->index());
+}
+
+std::string RobotLogParser::get_id(const rj::CTRECanCoderStatusFrame* encoder)
+{
+  return "Sensor/CanCoder::" + std::to_string(encoder->deviceID()) + "::" + std::to_string(encoder->firmwareVersion());
 }
 
 int RobotLogParser::plot_frame(double time, const rj::CTREMotorStatusFrame* motor)
@@ -1194,7 +1199,7 @@ int RobotLogParser::plot_frame(double time, const rj::ADIS16470StatusFrame* imu)
   return 0;
 }
 
-int RobotLogParser::plot_frame(double time, const rj::WPIDigitalInput* input)
+int RobotLogParser::plot_frame(double time, const rj::WPIDigitalInputStatusFrame* input)
 {
   // WPI Digital Input
   auto id = get_id(input);
@@ -1215,7 +1220,7 @@ int RobotLogParser::plot_frame(double time, const rj::WPIDigitalInput* input)
   return 0;
 }
 
-int RobotLogParser::plot_frame(double time, const rj::WPIEncoder* encoder)
+int RobotLogParser::plot_frame(double time, const rj::WPIEncoderStatusFrame* encoder)
 {
   // WPI Encoder
   auto id = get_id(encoder);
@@ -1281,7 +1286,7 @@ int RobotLogParser::plot_frame(double time, const rj::WPIEncoder* encoder)
   return 0;
 }
 
-int RobotLogParser::plot_frame(double time, const rj::WPIDutyCycleEncoder* encoder)
+int RobotLogParser::plot_frame(double time, const rj::WPIDutyCycleEncoderStatusFrame* encoder)
 {
   // WPI Duty Cycle Encoder
   auto id = get_id(encoder);
@@ -1312,6 +1317,67 @@ int RobotLogParser::plot_frame(double time, const rj::WPIDutyCycleEncoder* encod
   data = encoder->distance();
   point = PJ::PlotData::Point(time, data);
   series = _plot_data.addNumeric(id + "/distance");
+  series->second.pushBack(point);
+
+  return 0;
+}
+
+int RobotLogParser::plot_frame(double time, const rj::CTRECanCoderStatusFrame* encoder)
+{
+  // CTRE CANCoder
+  auto id = get_id(encoder);
+  double data;
+  PJ::PlotData::Point point;
+  std::unordered_map<std::string, PJ::PlotData>::iterator series;
+
+  data = encoder->position();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/position");
+  series->second.pushBack(point);
+
+  data = encoder->velocity();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/velocity");
+  series->second.pushBack(point);
+
+  data = encoder->absolutePosition();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/absolutePosition");
+  series->second.pushBack(point);
+
+  data = encoder->busVoltage();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/busVoltage");
+  series->second.pushBack(point);
+
+  data = encoder->lastError();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/lastError");
+  series->second.pushBack(point);
+
+  // data = encoder->lastUnitString();
+  // point = PJ::PlotData::Point(time, data);
+  // series = _plot_data.addNumeric(id + "/lastUnitString");
+  // series->second.pushBack(point);
+
+  data = encoder->lastTimestamp();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/lastTimestamp");
+  series->second.pushBack(point);
+
+  data = encoder->resetOccurred();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/resetOccurred");
+  series->second.pushBack(point);
+
+  data = encoder->faults();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/faults");
+  series->second.pushBack(point);
+
+  data = encoder->stickyFaults();
+  point = PJ::PlotData::Point(time, data);
+  series = _plot_data.addNumeric(id + "/stickyFaults");
   series->second.pushBack(point);
 
   return 0;
@@ -1361,19 +1427,24 @@ int RobotLogParser::plot_frame(const rj::StatusFrameHolder* status_frame)
     auto imu = status_frame->statusFrame_as<rj::ADIS16470StatusFrame>();
     return plot_frame(time, imu);
   }
-  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDigitalInput)
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDigitalInputStatusFrame)
   {
-    auto input = status_frame->statusFrame_as<rj::WPIDigitalInput>();
+    auto input = status_frame->statusFrame_as<rj::WPIDigitalInputStatusFrame>();
     return plot_frame(time, input);
   }
-  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIEncoder)
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIEncoderStatusFrame)
   {
-    auto encoder = status_frame->statusFrame_as<rj::WPIEncoder>();
+    auto encoder = status_frame->statusFrame_as<rj::WPIEncoderStatusFrame>();
     return plot_frame(time, encoder);
   }
-  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDutyCycleEncoder)
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_WPIDutyCycleEncoderStatusFrame)
   {
-    auto encoder = status_frame->statusFrame_as<rj::WPIDutyCycleEncoder>();
+    auto encoder = status_frame->statusFrame_as<rj::WPIDutyCycleEncoderStatusFrame>();
+    return plot_frame(time, encoder);
+  }
+  else if (statusFrame_type == rj::StatusFrame::StatusFrame_CTRECanCoderStatusFrame)
+  {
+    auto encoder = status_frame->statusFrame_as<rj::CTRECanCoderStatusFrame>();
     return plot_frame(time, encoder);
   }
   else

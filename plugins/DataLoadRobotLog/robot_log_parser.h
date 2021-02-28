@@ -23,11 +23,13 @@ private:
 
   std::string get_id(const rj::ADIS16470StatusFrame* pcm);
 
-  std::string get_id(const rj::WPIDigitalInput* pcm);
+  std::string get_id(const rj::WPIDigitalInputStatusFrame* pcm);
 
-  std::string get_id(const rj::WPIEncoder* pcm);
+  std::string get_id(const rj::WPIEncoderStatusFrame* pcm);
 
-  std::string get_id(const rj::WPIDutyCycleEncoder* pcm);
+  std::string get_id(const rj::WPIDutyCycleEncoderStatusFrame* pcm);
+
+  std::string get_id(const rj::CTRECanCoderStatusFrame* pcm);
 
   int plot_frame(double time, const rj::CTREMotorStatusFrame* motor);
 
@@ -43,11 +45,13 @@ private:
 
   int plot_frame(double time, const rj::ADIS16470StatusFrame* pcm);
 
-  int plot_frame(double time, const rj::WPIDigitalInput* pcm);
+  int plot_frame(double time, const rj::WPIDigitalInputStatusFrame* pcm);
 
-  int plot_frame(double time, const rj::WPIEncoder* pcm);
+  int plot_frame(double time, const rj::WPIEncoderStatusFrame* pcm);
 
-  int plot_frame(double time, const rj::WPIDutyCycleEncoder* pcm);
+  int plot_frame(double time, const rj::WPIDutyCycleEncoderStatusFrame* pcm);
+
+  int plot_frame(double time, const rj::CTRECanCoderStatusFrame* pcm);
 
 public:
   Parser(PJ::PlotDataMapRef &plot_data): plot_data(plot_data) {}
