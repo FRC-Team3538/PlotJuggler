@@ -44,3 +44,4 @@ cmake-build-*
 
 /install*
 /.vscode*
+installer/io.plotjuggler.application/data
