@@ -47,8 +47,7 @@ bool DataLoadRobotLog::readDataFromFile(FileLoadInfo* info, PlotDataMapRef& plot
     quint32 len;
 
     inB >> len;
-    // len = _byteswap_ulong(len);
-    len = __builtin_bswap32(len);
+    len = FLATBUFFERS_BYTESWAP32(len);
     char frame_bytes[len];
 
     inB.readRawData(frame_bytes, len);
