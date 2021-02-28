@@ -324,7 +324,7 @@ int Parser::plot_frame(double time, const rj::REVMotorStatusFrame* motor)
   series = plot_data.addNumeric(id + "/encoder/lastError");
   series->second.pushBack(point);
 
-
+/*
   auto altEncoder = motor->altEncoder();
 
   data = altEncoder->position();
@@ -371,7 +371,7 @@ int Parser::plot_frame(double time, const rj::REVMotorStatusFrame* motor)
   point = PJ::PlotData::Point(time, data);
   series = plot_data.addNumeric(id + "/altEncoder/lastError");
   series->second.pushBack(point);
-
+*/
 
   auto analog = motor->analog();
 
